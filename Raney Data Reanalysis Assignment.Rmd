@@ -1,0 +1,398 @@
+---
+title: "Data Replication - Patterns of Injury among the Neandertals"
+author: "Emily Raney"
+date: "4/14/2021"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+**Introduction**
+
+Adult Neandertal skeletons are marked by a high frequency of traumatic lesions. These hominins exhibit a clear injury pattern, with a concentration of lesions around the head and neck, and relatively few lesions in the pelvic girdle and lower limb. Despite the consistency of this pattern in the Neandertal fossil record, its cause is not clear. This study by Berger and Trinkaus attempts to answer two questions about Neandertal injuries: 
+
+1. Is the injury pattern of Neandertals different than the injury pattern of extant humans? 
+
+2. Does behavior account for Neandertal injury distribution? 
+
+One possible explanation is that Neandertals were engaging in hunting large prey (i.e., ungulates and horses) using close-range projectile technology, which led to the characteristic clustering of injuries around the head and neck. To test this hypothesis, their injury patterns were compared with those of a *Homo sapiens* population that engages in a similar activity pattern- North American rodeo performers. 
+
+**Data**
+
+The data set consists of counts of traumatic lesions found in both Neandertal and *H. sapiens* samples. It is important to note here that for this analysis, *N* is the number of lesions found in the population. The *H. sapiens* samples consist of three archaeological samples, three clinical samples, and one highly specialized athletic sample. The archaeological samples include: a sample from an Indigenous population from the Carlston Annis site in Kentucky (Bt-5; 223 lesions); a sample from an Indigenous population from the Libben site in Ohio (Libben; 94 lesions); and a sample from a number of cemeteries near the Nile Valley in southern Egypt (Nubia; 160 lesions). The clinical samples include lesions formally diagnosed and described in a medical setting. They include: a sample of fractures treated at London Hospital in 1907 (London; 1,730 lesions); a sample of fractures treated at the Hudson Hospital in New York City in the late 19th century (New York; 11,959 lesions); and a sample of fractures documented for the purposes of the NM Workers Compensation Administration from 1992-1993 (New Mexico; 792 lesions). The athletic sample consists of injuries reported by North American Rodeo performers (Rodeo; 181 lesions). 
+
+
+The Neandertal sample consists of 17 individuals from western Europe and southwest Asia with a total of 27 traumatic lesions (Neandertal total). There are three additional subsets within this sample. Four of the Neandertal lesions are not directly associated with a specific fracture; rather, they are the result of post-traumatic degenerative joint disease (DJD). The *Neandertals w/o DJD* sample includes only the lesions associated with fractures (23 lesions). Additionally, the individual Shanidar I has 6 lesions; this accounts for 22% of the total lesions found in Neandertals. In case Shanidar I is an outlier, the sample *Neandertals w/o Shanidar I* excludes him from the total count (21 lesions). Finally, the sample *Neandertals w/o Shanidar I & DJD* consists of 18 lesions. 
+
+
+**Analysis**
+
+The original analysis does not consist of much descriptive statistical analysis beyond converting injury counts to percentages. Those are replicated in Table 2. 
+
+
+Chi-square and *p*-values were computed between each *H. sapiens* sample and the four different Neandertal samples; in this analysis, the *H. sapiens* samples act as the expected value, and the Neandertal samples act as the observed values.  
+
+**Data and Summary Statistics**
+```{r}
+library(tidyverse)
+library(curl)
+library(readr)
+f <- "https://raw.githubusercontent.com/raneyej/raney-emily-ADA-data-reanalysis-assignment/main/Neandertal%20Trauma%20Data.csv"
+trauma <- read.csv(f, header = TRUE, sep = ",")
+head(trauma)
+library(knitr)
+kable(trauma, caption = "Table 1: Traumatic Lesion Counts") #This creates a table of the raw lesion counts for each sample
+g <- "https://raw.githubusercontent.com/raneyej/raney-emily-ADA-data-reanalysis-assignment/main/Trauma%20Percentages.csv"
+trauma_pct <- read.csv(g, header = TRUE, sep = ",")
+head(trauma_pct)
+kable(trauma_pct, caption = "Table 2: Traumatic Lesion Percentages") #This creates a table of the percentage of lesions by anatomical region
+```
+```{r, echo=FALSE, out.width="50%", fig.cap="Table 2 from Berger and Trinkaus."}
+knitr::include_graphics("C:/Users/Emily/Pictures/img/table_two.png")
+#This is the table from Berger and Trinkaus for comparison. The resolution is really low because it's a screenshot. They included the raw counts and each corresponding percentage in the same cell. I separated them out into two tables because I think it's better for visualization. 
+```
+```{r}
+h <- "https://raw.githubusercontent.com/raneyej/raney-emily-ADA-data-reanalysis-assignment/main/Trauma%20Proportions.csv"
+trauma_prop <- read.csv(h, header = TRUE, sep = ",")
+Head.Neck_mean <- mean(trauma_prop$Head.Neck)
+Head.Neck_sd <- sd(trauma_prop$Head.Neck)
+Trunk_mean <- mean(trauma_prop$Trunk)
+Trunk_sd <- sd(trauma_prop$Trunk)
+Shoulder.Arm_mean <- mean(trauma_prop$Shoulder.Arm)
+Shoulder.Arm_sd <- sd(trauma_prop$Shoulder.Arm)
+Hand_mean <- mean(trauma_prop$Hand)
+Hand_sd <- sd(trauma_prop$Hand)
+Pelvis_mean <- mean(trauma_prop$Pelvis)
+Pelvis_sd <- sd(trauma_prop$Pelvis)
+Leg_mean <- mean(trauma_prop$Leg)
+Leg_sd <- sd(trauma_prop$Leg)
+Foot_mean <- mean(trauma_prop$Foot)
+Foot_sd <- sd(trauma_prop$Foot)
+Head.Neck_sum <- c(Head.Neck_mean, Head.Neck_sd)
+Trunk_sum <- c(Trunk_mean, Trunk_sd)
+Shoulder.Arm_sum <- c(Shoulder.Arm_mean, Shoulder.Arm_sd)
+Hand_sum <- c(Hand_mean, Hand_sd)
+Pelvis_sum <- c(Pelvis_mean, Pelvis_sd)
+Leg_sum <- c(Leg_mean, Leg_sd)
+Foot_sum <- c(Foot_mean, Foot_sd)
+Trauma_Summary <- data.frame(Head.Neck_sum, Trunk_sum, Shoulder.Arm_sum, Hand_sum, Pelvis_sum, Leg_sum, Foot_sum)
+Trauma_Summary
+row.names(Trauma_Summary) <- c("Mean", "Standard Deviation")
+Trauma_Summary
+kable(Trauma_Summary, caption = "Table 3: Traumatic Lesion Distribution Summary")
+```
+
+These summary statistics aren't included in the original analysis; I imagine it's because it's such a small data set that you can get a pretty good idea of the distribution of injuries just by looking at the tables. I included them just for the sake of getting some practice with generating summary statistics. Interestingly, head/neck injuries and trunk injuries have similar standard deviations. Perhaps there is something unusual about the pattern of trunk injuries among Neandertals and *H. sapiens*.
+
+
+**Visualization**
+```{r}
+Trauma_comp <- data.frame(Region = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"),
+                          Neandertal_value = c(0.296,	0.148,	0.259,	0.037,	0.037,	0.111,	0.111),
+                          Bt_5_value = c(0.018,	0.511,	0.224,	0.063,	0.031,	0.09,	0.063), 
+                          Libben_value = c(0.064,	0.213,	0.297,	0,	0,	0.394,	0.032),
+                          Nubia_value = c(0.106,	0.069,	0.531,	0.019,	0.038,	0.226,	0.013), 
+                          London_value = c(0.062,	0.07,	0.316,	0.244,	0.002,	0.236,	0.07),
+                          New_York_value = c(0.137,	0.123,	0.253,	0.219,	0.005,	0.206,	0.056), 
+                          New_Mexico_value = c(0.016,	0.125,	0.231,	0.236,	0.021,	0.111,	0.259), 
+                          Rodeo_value = c(0.392,	0.099,	0.259,	0.061,	0.033,	0.061,	0.094))
+Trauma_comp
+#I restructured my data frame in order to graph it.
+level_region <- factor(Trauma_comp$Region, level = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot")) #When the x variables are categorical, ggplot automatically orders them alphabetically. I had to manually change the order of the variables so they matched the order in the graph from Berger and Trinkaus.
+colors <- c("Neandertals" = "hotpink", "Bt_5" = "springgreen2", "Libben" = "royalblue1", "Nubia" = "magenta3") #I set my own color scheme.
+Trauma_plot <- ggplot(Trauma_comp, aes(x=level_region, group=1)) +
+  geom_line(aes(y=Neandertal_value, color = "Neandertals")) +
+  geom_line(aes(y=Bt_5_value, color = "Bt_5")) +
+  geom_line(aes(y=Libben_value, color = "Libben")) +
+  geom_line(aes(y=Nubia_value, color = "Nubia")) +
+  ylim(0.0, 0.6)
+Trauma_plot + labs(title = "Traumatic Injury Distribution", 
+                   x = "Anatomical Region", y = "Proportion", color = "Legend",
+                   caption = "Figure 1: Traumatic injury distribution comparison between Neandertals and three extant human populations") +
+  scale_color_manual(values = colors)
+```
+
+```{r, echo=FALSE, out.width="50%", fig.cap="Figure 1 from Berger and Trinkaus."}
+knitr::include_graphics("C:/Users/Emily/Pictures/img/figure_one.png")
+#This is Figure 1 from Trinkaus and Berger. 
+```
+
+```{r}
+No_DJD <- data.frame(Region = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"),
+                          Neandertal_noDJD_value = c(0.304,	0.174,	0.304,	0.043,	0,	0.13,	0.043),
+                          London_value = c(0.062,	0.07,	0.316,	0.244,	0.002,	0.236,	0.07),
+                          New_York_value = c(0.137,	0.123,	0.253,	0.219,	0.005,	0.206,	0.056), 
+                          New_Mexico_value = c(0.016,	0.125,	0.231,	0.236,	0.021,	0.111,	0.259))
+
+level_region <- factor(Trauma_comp$Region, level = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot")) 
+colors_4 <- c("Neandertals w/o DJD" = "turquoise3", "London" = "mediumblue", "New York" = "darkorange", "New Mexico" = "purple1")
+No_DJD_plot <- ggplot(No_DJD, aes(x=level_region, group=1)) +
+  geom_line(aes(y=Neandertal_noDJD_value, color = "Neandertals w/o DJD")) +
+  geom_line(aes(y=London_value, color = "London")) +
+  geom_line(aes(y=New_York_value, color = "New York")) +
+  geom_line(aes(y=New_Mexico_value, color = "New Mexico")) +
+  ylim(0.0, 0.6)
+No_DJD_plot + labs(title = "Traumatic Injury Distribution", 
+                   x = "Anatomical Region", y = "Proportion", color = "Legend",
+                   caption = "Figure 2: Traumatic injury distribution comparisons between Neandertals without DJD and clinical extant human samples") +
+  scale_color_manual(values = colors_4)
+```
+
+```{r, echo=FALSE, out.width="50%", fig.cap="Figure 2 from Berger and Trinkaus."}
+knitr::include_graphics("C:/Users/Emily/Pictures/img/figure_two.png")
+#This is Figure 2 from Trinkaus and Berger. 
+```
+
+```{r}
+level_region <- factor(Trauma_comp$Region, level = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot")) 
+colors_3 <- c("Neandertals" = "hotpink", "Rodeo" = "purple2")
+Trauma_plot_3 <- ggplot(Trauma_comp, aes(x=level_region, group=1)) +
+  geom_line(aes(y=Neandertal_value, color = "Neandertals")) +
+  geom_line(aes(y=Rodeo_value, color = "Rodeo")) + 
+  ylim(0.0, 0.6)
+Trauma_plot_3 + labs(title = "Traumatic Injury Distribution of Neandertals and Rodeo Performers", x = "Anatomical Region", y = "Proportion", color = "Legend", caption = "Figure 3: Traumatic injury distribution comparison between Neandertals and rodeo performers") +
+  scale_color_manual(values = colors_3)
+```
+
+```{r, echo=FALSE, out.width="50%", fig.cap="Figure 3 from Berger and Trinkaus."}
+knitr::include_graphics("C:/Users/Emily/Pictures/img/figure_three.png")
+#This is Figure 3 from Trinkaus and Berger. 
+```
+
+Just for fun, here are some extra visualizations. 
+
+Comparison of Neandertals and all seven extant human samples: 
+
+```{r}
+level_region <- factor(Trauma_comp$Region, level = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot")) 
+colors_2 <- c("Neandertals" = "hotpink", "Bt_5" = "springgreen2", "Libben" = "royalblue1", "Nubia" = "magenta3", "London" = "mediumblue", "New York" = "darkorange", "New Mexico" = "purple1",  "Rodeo" = "red2")
+Trauma_plot_2 <- ggplot(Trauma_comp, aes(x=level_region, group=1)) +
+  geom_line(aes(y=Neandertal_value, color = "Neandertals")) +
+  geom_line(aes(y=Bt_5_value, color = "Bt_5")) +
+  geom_line(aes(y=Libben_value, color = "Libben")) +
+  geom_line(aes(y=Nubia_value, color = "Nubia")) +
+  geom_line(aes(y=London_value, color = "London")) +
+  geom_line(aes(y=New_York_value, color = "New York")) +
+  geom_line(aes(y=New_Mexico_value, color = "New Mexico")) +
+  geom_line(aes(y=Rodeo_value, color = "Rodeo")) +
+  ylim(0.0, 0.6)
+Trauma_plot_2 + labs(title = "Traumatic Injury Distribution (All Samples)", 
+                   x = "Anatomical Region", y = "Proportion", color = "Legend",
+                   caption = "Figure 4: Traumatic injury distribution comparison between Neandertals and all extant human samples") +
+  scale_color_manual(values = colors_2)
+```
+
+
+Here is the same set of plots but in bar graph form. I think bar graphs are a better choice to visualize this data set. 
+
+Neandertals and three extant human samples compared: 
+
+```{r}
+Trauma_comp_2 <- data.frame(Region = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"),
+                            Neandertals = c(0.296,	0.148,	0.259,	0.037,	0.037,	0.111,	0.111),
+                            Bt5 = c(0.018,	0.511,	0.224,	0.063,	0.031,	0.09,	0.063), 
+                            Libben = c(0.064,	0.213,	0.297,	0,	0,	0.394,	0.032),
+                            Nubia = c(0.106,	0.069,	0.531,	0.019,	0.038,	0.226,	0.013)) 
+Trauma_comp_2_long <- gather(Trauma_comp_2, Sample, Proportion, -Region)
+Trauma_comp_2_long #I put the data in long form to make a bar graph. 
+Trauma_bar_2 <- ggplot(data = Trauma_comp_2_long, aes(x = factor(Sample, levels = c("Neandertals", "Bt5", "Libben", "Nubia")), y = Proportion)) +
+  geom_col(aes(fill=factor(Region, levels =c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"))), width = .5) #I manually set the order of the x variables and the fill variables
+Trauma_bar_2 + scale_fill_manual(values = c("lightpink", "tomato", "greenyellow", "springgreen3", "steelblue1", "slateblue", "violetred")) + labs(x = "Sample", y = "Proportion", fill = "Legend", caption = "Figure 5: Bar graph comparison of Neandertals and archaeological extant human samples")
+```
+
+Neandertals without DJD and clinical extant human samples compared: 
+
+```{r}
+Trauma_comp_5 <- data.frame(Region = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"),
+                            Neand_noDJD = c(0.304,	0.174,	0.304,	0.043,	0,	0.13,	0.043), 
+                            London = c(0.062,	0.07,	0.316,	0.244,	0.002,	0.236,	0.07),
+                            NewYork = c(0.137,	0.123,	0.253,	0.219,	0.005,	0.206,	0.056), 
+                            NewMexico = c(0.016,	0.125,	0.231,	0.236,	0.021,	0.111,	0.259))
+Trauma_comp_5_long <- gather(Trauma_comp_5, Sample, Proportion, -Region)
+Trauma_comp_5_long
+Trauma_comp_5_long <- gather(Trauma_comp_5, Sample, Proportion, -Region)
+Trauma_bar_5 <- ggplot(data = Trauma_comp_5_long, aes(x = factor(Sample, levels = c("Neand_noDJD", "London", "NewYork", "NewMexico")), y = Proportion)) +
+  geom_col(aes(fill=factor(Region, levels =c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"))), width = .5)
+Trauma_bar_5 + scale_fill_manual(values = c("lightpink", "tomato", "greenyellow", "springgreen3", "steelblue1", "slateblue", "violetred")) + labs(x = "Sample", y = "Proportion", fill = "Legend", caption = "Figure 6: Bar graph comparison of Neandertals without DJD and clinical extant human samples")
+
+```
+
+Neandertals and rodeo performers compared: 
+
+```{r}
+Trauma_comp_4 <- data.frame(Region = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"),
+                            Neandertals = c(0.296,	0.148,	0.259,	0.037,	0.037,	0.111,	0.111),
+                            Rodeo = c(0.392,	0.099,	0.259,	0.061,	0.033,	0.061,	0.094))
+Trauma_comp_4_long <- gather(Trauma_comp_4, Sample, Proportion, -Region)
+Trauma_comp_4_long
+Trauma_bar_4 <- ggplot(data = Trauma_comp_4_long, aes(x = factor(Sample, levels = c("Neandertals", "Rodeo")), y = Proportion)) +
+  geom_col(aes(fill=factor(Region, levels =c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"))), width = .5)
+Trauma_bar_4 + scale_fill_manual(values = c("lightpink", "tomato", "greenyellow", "springgreen3", "steelblue1", "slateblue", "violetred")) + labs(x = "Sample", y = "Proportion", fill = "Legend", caption = "Figure 7: Bar graph comparison of Neandertals and rodeo performers")
+```
+
+Neandertals and all extant human samples compared:
+
+```{r}
+Trauma_comp_3 <- data.frame(Region = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"),
+                            Ne = c(0.296,	0.148,	0.259,	0.037,	0.037,	0.111,	0.111),
+                            Bt = c(0.018,	0.511,	0.224,	0.063,	0.031,	0.09,	0.063), 
+                            Li = c(0.064,	0.213,	0.297,	0,	0,	0.394,	0.032),
+                            Nu = c(0.106,	0.069,	0.531,	0.019,	0.038,	0.226,	0.013), 
+                            Lo = c(0.062,	0.07,	0.316,	0.244,	0.002,	0.236,	0.07),
+                            NY = c(0.137,	0.123,	0.253,	0.219,	0.005,	0.206,	0.056), 
+                            NM = c(0.016,	0.125,	0.231,	0.236,	0.021,	0.111,	0.259), 
+                            Ro = c(0.392,	0.099,	0.259,	0.061,	0.033,	0.061,	0.094))
+Trauma_comp_3_long <- gather(Trauma_comp_3, Sample, Proportion, -Region)
+Trauma_comp_3_long
+Trauma_bar_3 <- ggplot(data = Trauma_comp_3_long, aes(x = factor(Sample, levels = c("Ne", "Bt", "Li", "Nu", "Lo", "NY", "NM", "Ro")), y = Proportion)) +
+  geom_col(aes(fill=factor(Region, levels =c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"))), width = .5)
+Trauma_bar_3 + scale_fill_manual(values = c("lightpink", "tomato", "greenyellow", "springgreen3", "steelblue1", "slateblue", "violetred")) + labs(x = "Sample", y = "Proportion", fill = "Legend", caption = "Figure 8: Bar graph comparison of Neandertals and all extant human samples")
+```
+
+**Renalysis**
+
+This study contains two hypothesis tests about the pattern of Neandertal injuries.  
+
+Test one: 
+
+H_0: There is no statistically significant difference between the injury pattern of Neandertals and extant humans. 
+
+H_a: Neandertals have a higher concentration of head and neck injuries than extant humans. 
+
+Test two: 
+
+H_0: There is no statistically significant difference between the injury pattern of Neandertals and rodeo performers. 
+
+H_a: Neandertals have a higher concentration of head and neck injuries than rodeo performers. 
+
+Because the Neandertal injury distribution is supposedly the result of a highly specific activity pattern, their injury frequencies are the observed values in the chi squared analysis, while the extant human injury frequencies are the expected values. If the high concentration of head and neck injuries seen in Neandertals can be explained by unique hunting methods, we should expect to see *high* chi squared values in the pairwise comparisons between the archaeological and clinical extant human samples, and we should see *low* chi squared values in the pairwise comparison between Neandertals and rodeo performers. 
+    
+```{r}
+trauma_raw <- data.frame(Region = c("Head.Neck", "Trunk", "Shoulder.Arm", "Hand", "Pelvis", "Leg", "Foot"),
+                         Neandertal_total = c(8, 4, 7, 1, 1, 3, 3),
+                         Neand_noDJD = c(7, 4, 7, 1, 0, 3, 1),
+                         Neand_noShan = c(6, 4, 5, 1, 1, 3, 1), 
+                         Nend_noDJDShan = c(5, 4, 5, 1, 0, 3, 0), 
+                         Bt5 = c(4, 114, 50, 14, 7, 20, 14), 
+                         Libben = c(6, 20, 28, 0, 0, 37, 3), 
+                         Nubia = c(17, 11, 85, 3, 6, 36, 2), 
+                         London = c(108, 121, 547, 421, 3, 409, 121), 
+                         NewYork = c(1640, 1469, 3025, 2624, 65, 2466, 670), 
+                         NewMexico = c(13, 99, 183, 187, 17, 88, 205), 
+                         Rodeo = c(71, 18, 47, 11, 6, 11, 17))
+head(trauma_raw)#A data frame of the raw lesion counts
+library(stats)
+NdT_Bt5 <- chisq.test(matrix(c(8, 4, 4, 114, 7, 50, 1, 14, 1, 7, 3, 20, 3, 15), nrow=2), correct = FALSE) 
+NdT_Bt5 #Neandertal total compared with Bt5
+#This is a bit of a weird way to organize the data, but it was the only way I could control which values were the observed set and which ones were the expected set. Also, they don't mention it in the original analysis, but they were not using the Yates continuity correction.
+NdT_Libben <- chisq.test(matrix(c(8, 6, 4, 20, 7, 28, 1, 0, 1, 0, 3, 37, 3, 3), nrow=2), correct = FALSE)
+NdT_Libben #Neandertal total compared wtih Libben
+NdT_Nubia <- chisq.test(matrix(c(8, 17, 4, 11, 7, 85, 1, 3, 1, 6, 3, 36, 3, 2), nrow = 2), correct = FALSE)
+NdT_Nubia #Neandertal total compared with Nubia
+NdT_London <- chisq.test(matrix(c(8, 108, 4, 121, 7, 547, 1, 421, 1, 3, 3, 409, 3, 121), nrow = 2), correct = FALSE)
+NdT_London #Neandertal total compared with London
+NdT_NY <- chisq.test(matrix(c(8, 1640, 4, 1469, 7, 3025, 1, 2624, 1, 65, 3, 2466, 3, 670), nrow = 2), correct = FALSE)
+NdT_NY #Neandertal total compared with New York
+NdT_NM <- chisq.test(matrix(c(8, 13, 4, 99, 7, 183, 1, 187, 1, 17, 3, 88, 3, 205), nrow = 2), correct = FALSE)
+NdT_NM
+NdT_Rodeo <- chisq.test(matrix(c(8, 71, 4, 18, 7, 47, 1, 11, 1, 6, 3, 11, 3, 17), nrow = 2), correct = FALSE)
+NdT_Rodeo #Neandertal total compared with Rodeo
+Nd_NoDJD_Bt5 <- chisq.test(matrix(c(7, 4, 4, 114, 7, 50, 1, 14, 0, 7, 3, 20, 1, 14), nrow = 2), correct = FALSE) 
+Nd_NoDJD_Bt5 #Neandertals without DJD compared with Bt5
+Nd_NoDJD_Libben <- chisq.test(matrix(c(7, 6, 4, 20, 7, 28, 1, 0, 0, 0, 3, 37, 1, 3), nrow = 2), correct = FALSE)
+Nd_NoDJD_Libben #Not sure why this wouldn't work. I thought the issue might have been that two of the expected values in the Libben sample were 0, but that didn't cause any issues when I compared it with the Neandertal_total sample. 
+Nd_NoDJD_Nubia <- chisq.test(matrix(c(7, 17, 4, 11, 7, 85, 1, 3, 0, 6, 3, 36, 1, 2), nrow = 2), correct = FALSE)
+Nd_NoDJD_Nubia #Neandertals without DJD compared with Nubia
+Nd_NoDJD_London <- chisq.test(matrix(c(7, 108, 4, 121, 7, 547, 1, 421, 0, 3, 3, 409, 1, 121), nrow = 2), correct = FALSE)
+Nd_NoDJD_London #Neandertals without DJD compared with London
+Nd_NoDJD_NY <- chisq.test(matrix(c(7, 1640, 4, 1569, 7, 3025, 1, 2624, 0, 65, 3, 2466, 1, 670), nrow = 2), correct = FALSE)
+Nd_NoDJD_NY #Neandertals without DJD Compared with New York
+Nd_NoDJD_NM <- chisq.test(matrix(c(7, 13, 4, 99, 7, 183, 1, 187, 0, 17, 3, 88, 1, 205), nrow = 2), correct = FALSE)
+Nd_NoDJD_NM #Neandertals without DJD compared with New Mexico
+Nd_NoDJD_Rodeo <- chisq.test(matrix(c(7, 71, 4, 18, 7, 47, 1, 11, 0, 6, 3, 11, 1, 17), nrow = 2), correct = FALSE)
+Nd_NoDJD_Rodeo #Neandertals without DJD compared with Rodeo
+Nd_Shan_Bt5 <- chisq.test(matrix(c(6, 4, 4, 114, 5, 50, 1, 14, 1, 7, 3, 20, 1, 14), nrow = 2), correct = FALSE)
+Nd_Shan_Bt5 #Neandertals without Shanidar 1 compared with Bt5 
+Nd_Shan_Libben <- chisq.test(matrix(c(6, 6, 4, 20, 5, 28, 1, 0, 1, 0, 3, 37, 1, 3), nrow = 2), correct = FALSE)
+Nd_Shan_Libben #Neandertals without Shanidar 1 compared with Libben
+Nd_Shan_Nubia <- chisq.test(matrix(c(6, 17, 4, 11, 5, 85, 1, 3, 1, 6, 3, 36, 1, 2), nrow = 2), correct = FALSE)
+Nd_Shan_Nubia #Neandertals without Shanidar 1 compared with Nubia
+Nd_Shan_London <- chisq.test(matrix(c(6, 108, 4, 121, 5, 547, 1, 421, 1, 3, 3, 409, 1, 121), nrow = 2), correct = FALSE)
+Nd_Shan_London #Neandertals without Shanidar 1 compared with London
+Nd_Shan_NY <- chisq.test(matrix(c(6, 1640, 4, 1469, 5, 3025, 1, 2624, 1, 65, 3, 2466, 1, 670), nrow = 2), correct = FALSE)
+Nd_Shan_NY #Neandertals without Shanidar 1 compared with New York 
+Nd_Shan_NM <- chisq.test(matrix(c(6, 13, 4, 99, 5, 183, 1, 187, 1, 17, 3, 88, 1, 205), nrow = 2), correct = FALSE)
+Nd_Shan_NM #Neandertals without Shanidar 1 compared with New Mexico
+Nd_Shan_Rodeo <- chisq.test(matrix(c(6, 71, 4, 18, 5, 47, 1, 11, 1, 6, 3, 11, 1, 17), nrow = 2), correct = FALSE)
+Nd_Shan_Rodeo #Neandertals without Shanidar 1 compared with Rodeo
+Nd_DJDShan_Bt5 <- chisq.test(matrix(c(5, 4, 4, 114, 5, 50, 1, 14, 0, 7, 3, 20, 0, 14), nrow = 2), correct = FALSE)
+Nd_DJDShan_Bt5 #Neandertals without DJD or Shanidar 1 compared with Bt5
+Nd_DJDShan_Libben <- chisq.test(matrix(c(5, 6, 4, 20, 5, 28, 1, 0, 0, 0, 3, 37, 0, 3), nrow = 2), correct = FALSE)
+Nd_DJDShan_Libben #Another one that didn't come out right
+Nd_DJDShan_Nubia <- chisq.test(matrix(c(5, 17, 4, 11, 5, 85, 1, 3, 0, 6, 3, 26, 0, 2), nrow = 2), correct = FALSE)
+Nd_DJDShan_Nubia #Neandertals without DJD or Shanidar 1 compared with Nubia
+Nd_DJDShan_London <- chisq.test(matrix(c(5, 108, 4, 121, 5, 547, 1, 421, 0, 3, 3, 409, 0, 121), nrow = 2), correct = FALSE)
+Nd_DJDShan_London #Neandertals without DJD or Shanidar 1 compared with London
+Nd_DJDShan_NY <- chisq.test(matrix(c(5, 1640, 4, 1469, 5, 3025, 1, 2624, 0, 65, 3, 2466, 0, 670), nrow = 2), correct = FALSE)
+Nd_DJDShan_NY #Neandertals without DJD or Shanidar 1 compared with New York
+Nd_DJDShan_NM <- chisq.test(matrix(c(5, 13, 4, 99, 5, 183, 1, 187, 0, 17, 3, 88, 0, 205), nrow = 2), correct = FALSE)
+Nd_DJDShan_NM #Neandertals without DJD or Shanidar 1 compared with New Mexico
+Nd_DJDShan_Rodeo <- chisq.test(matrix(c(5, 71, 4, 18, 5, 47, 1, 11, 0, 6, 3, 11, 0, 17), nrow = 2), correct = FALSE)
+Nd_DJDShan_Rodeo #Neandertals without DJD or Shanidar 1 compared with Rodeo 
+```
+```{r}
+chisq_values <- data.frame(Bt5 = c(46.95, 45.119, 38.552, 35.906), 
+                           p_values = c("p<0.0001", "p<0.0001", "p<0.0001", "p<0.001"), 
+                           Libben =c(25.026, "NA", 20.531, "NA"), 
+                           p_values = c("p=0.0003", "NA", "p=0.0022", "NA"),
+                           Nubia = c(21.73, 14.236, 13.944, 11.64),
+                           p_values = c("p=0.0014", "p=0.0271", "p=0.0302", "p=0.0707"),
+                           London = c(46.266, 28.821, 43.854, 22.900),
+                           p_values = c("p<0.0001", "p<0.0001", "p<0.0001", "p=0.0008"),
+                           New_York = c(16.724, 9.377, 14.196, 7.520),
+                           p_values = c("p=0.0104", "p=1535", "p=0.0275", "0.2754"),
+                           New_Mexico = c(87.007, 84.714, 71.742, 63.577),
+                           p_values = c("p<0.0001", "p<0.0001", "p<0.0001", "p<0.0001"),
+                           Rodeo = c(2.293, 4.513, 4.477, 7.719),
+                           p_values = c("p=0.8908", "p=0.6607", "p=0.06125", "p=0.2494"))
+chisq_values #A data frame of the chi-squared values and their associated p-values
+chisq_values_formatted <- t(chisq_values)#I switched the arrangement of my rows and columns so they matched the table from Berger and Trinkaus
+colnames(chisq_values_formatted) <- c("Neandertal total", "Neandertals w/o DJD", "Neandertals w/o Shanidar 1", "Neandertals w/o DJD & Shanidar")
+kable(chisq_values_formatted, caption = "Table 4: Chi-squared values and their associated p-values for comparisons between Neandertals and extant human samples")
+library(kableExtra) #Here's some extra formatting to make the table more readable
+chisq_values_formatted %>%
+  kable() %>%
+  kable_styling() %>%
+  column_spec(1, bold = TRUE, border_right = TRUE, color = "black", background = "gainsboro") %>%
+  row_spec(c(2,4,6,8,10,12,14), background = "lightskyblue")
+
+```
+
+```{r, echo=FALSE, out.width="50%", fig.cap="Table 3 from Berger and Trinkaus."}
+knitr::include_graphics("C:/Users/Emily/Pictures/img/figure_nine.png")
+#The chi-squared values from Berger and Trinkaus 
+``` 
+
+For the most part, my chi squared analyses were very similar to those presented by Berger and Trinkaus. These were the comparisons that differed: 
+
+Neandertals w/o DJD and Libben
+
+Neandertals w/o DJD & Shanidar 1 and Libben
+
+Neandertals w/o DJD & Shanidar 1 and Nubia 
+
+**Results**
+
+The chi squared values for the comparisons between Neandertals and archaeological/clinical extant humans are high; therefore, we can reject the null hypothesis that Neandertal injury distributions fall within the same range as those of extant humans. The chi squared values for the comparisons between Neandertals and rodeo performers are low, so we can accept the null hypothesis that their distributions do not differ significantly. 
+
+Berger and Trinkaus do not specify the critical value they use to determine how low of a chi squared value is too low; The comparisons between Neandertals and the New York sample, while not as low as the rodeo comparison, are much lower than all of the other extant human comparisons. Overall, the chi squared values support the suggestion that the Neandertal injury distribution is a result of close-range hunting of large prey. 
+
+**Limitations of Study**
+
+*Taphonomic bias*
+
+This is an issue that Berger and Trinkaus acknowledge in their results section. With such a small sample size, it is possible that the 17 Neandertals in this study do not accurately represent the Neandertal injury pattern. The delicate bones of the hands and feet do not often preserve well, and they may simply be drastically underrepresented in the fossil record. Additionally, pelvic and femoral fractures are often traumatic enough to be instantly fatal, and they certainly would have impeded the mobility of the individual. This could have been a death sentence in a highly mobile species like the Neandertals. Perhaps individuals who died of pelvic/lower limb fractures, or who were simply unable to travel as a result of those fractures, died in areas that were not conducive to preservation.
+
+*Missing Samples*
+
+There is one glaringly obvious comparison that is missing from this study: Neandertals and contemporaneous Paleolithic *H. sapiens*. At the time of publication, there was no data available on the trauma patterns of this population. Recent bioarchaeological discoveries of skeletal remains of mid-Upper Paleolithic *H. sapiens*  reveal that they actually had similar rates of cranial trauma with Neandertals. *H. sapines* had significantly different hunting technology (and likely behavior) from Neandertals; this weakens the support for the idea that hunting behavior explains the Neandertal injury pattern. (I included a pdf of a 2018 paper describing trauma in Upper Paleolithic humans in my repository if you're interested!) 
